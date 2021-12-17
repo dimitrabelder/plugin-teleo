@@ -52,9 +52,16 @@ if [ $( uname -s ) == "Linux" ]; then
 	case $( uname -m ) in
 	armv7l)
 		echo "Machine Hardware name: armv7l"
-		url="https://eu.mirror.archlinuxarm.org/armv7h/community"
-		driver_version="0.30.0-1"
-		driver_name="geckodriver-$driver_version-armv7h.pkg.tar.xz";;
+		case $( cat /etc/debian_version ) in
+		10.11)
+			echo "Debian buster geckodriver with libc6 <= 2.28"
+			url="https://github.com/mozilla/geckodriver/releases/download"
+			driver_version="v0.23.0"
+			driver_name="geckodriver-v0.23.0-arm7hf.tar.gz";;
+		*)
+			url="https://eu.mirror.archlinuxarm.org/armv7h/community"
+			driver_version="0.30.0-1"
+			driver_name="geckodriver-$driver_version-armv7h.pkg.tar.xz";;
 	aarch64)
 		echo "Machine Hardware name: aarch64"
 		url="https://eu.mirror.archlinuxarm.org/aarch64/community"
@@ -80,7 +87,7 @@ fi
 
 if [ $driver_version != "" ]; then
 
-	if [ $(uname -m) == "armv7l" ] || [ $(uname -m) == "aarch64" ]; then
+	if [ $(uname -m) == "armv7l" && $(cat /etc/debian_version) != "10.11" ] || [ $(uname -m) == "aarch64" ]; then
 		sudo wget $url/$driver_name
 		sudo tar xJf $driver_name usr/bin/geckodriver
 		sudo mv usr/bin/geckodriver /usr/local/bin
